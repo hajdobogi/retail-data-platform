@@ -70,7 +70,7 @@ docker compose up --build -d
 ```
 
 Biztonsági megjegyzés: a demóban szereplő jelszavak és token nélküli Jupyter kizárólag
-kurzusprojekthez valók. Éles rendszerben AWS Secrets Manager, TLS, privát alhálózat,
+a projekthez valók. Éles rendszerben AWS Secrets Manager, TLS, privát alhálózat,
 hitelesítés és szűk security group szabályok szükségesek.
 
 ## Ellenőrzés és hibakeresés
