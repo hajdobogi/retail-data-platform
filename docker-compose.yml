@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: retail-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: retail
+      POSTGRES_USER: retail_user
+      POSTGRES_PASSWORD: retail_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retail_user -d retail"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - data-platform
+
+  etl:
+    build:
+      context: ./etl
+    container_name: retail-etl
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: retail
+      DB_USER: retail_user
+      DB_PASSWORD: retail_password
+      ETL_INTERVAL_SECONDS: 10
+      ETL_BATCH_SIZE: 8
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data-platform
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: retail-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data-platform
+
+  jupyter:
+    build:
+      context: ./jupyter
+    container_name: retail-jupyter
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: retail
+      DB_USER: retail_user
+      DB_PASSWORD: retail_password
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/workspace/notebooks
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data-platform
+
+networks:
+  data-platform:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  grafana_data:
