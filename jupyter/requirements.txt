@@ -1,0 +1,5 @@
+jupyterlab==4.3.6
+pandas==2.2.3
+psycopg[binary]==3.2.6
+sqlalchemy==2.0.39
+matplotlib==3.10.1
