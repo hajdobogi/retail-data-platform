@@ -48,7 +48,7 @@
       "fieldConfig": {"defaults": {"unit": "currencyUSD"}},
       "gridPos": {"h": 9, "w": 10, "x": 14, "y": 5},
       "id": 5,
-      "options": {"displayLabels": ["name", "percent"], "legend": {"displayMode": "table", "placement": "right"}, "pieType": "donut"},
+      "options": {"displayLabels": ["name", "percent"], "legend": {"displayMode": "table", "placement": "right"}, "pieType": "donut", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": true}},
       "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT region, SUM(revenue) AS revenue FROM orders WHERE $__timeFilter(created_at) GROUP BY region ORDER BY revenue DESC;", "refId": "A"}],
       "title": "Revenue by region",
       "type": "piechart"
